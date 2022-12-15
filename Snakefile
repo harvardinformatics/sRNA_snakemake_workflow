@@ -21,11 +21,13 @@ onstart:
     shell("scripts/index_genomes.sh")
 
 for ext in "fastq fq fastq.gz fq.gz".split():
-    rule:
+    rule fastqc:
         input:
             expand("data/1_raw/{{sample}}.{ext}", ext=ext)
         output:
             "data/1_raw/{sample}_fastqc.zip"
+        conda:
+            "workflow/envs/fastqc.yml"
         threads:
             config["threads"]["fastqc_report"]
         shell:
@@ -35,11 +37,13 @@ for ext in "fastq fq fastq.gz fq.gz".split():
 
 # Trim reads
 for ext in "fastq fq fastq.gz fq.gz".split():
-    rule:
+    rule trimgalore:
         input:
             expand("data/1_raw/{{sample}}.{ext}", ext=ext)
         output:
             "data/2_trimmed/{sample}_trimmed.fq.gz"
+        conda:
+            "workflow/envs/trimgalore.yml"
         params:
             min_length = config["trimming"]["min_length"],
             max_length = config["trimming"]["max_length"],
@@ -67,12 +71,13 @@ rule filter_rna:
         "data/2_trimmed/{sample}_trimmed.fq.gz"
     output:
         fqgz = "data/3_ncrna_filtered/{sample}_ncrna_filtered.fq.gz"
+    conda:
+        "workflow/envs/bowtie.yml"
     threads:
         config["threads"]["filter_rna_bowtie"]
     params:
         fq = "data/3_ncrna_filtered/{sample}_ncrna_filtered.fq",
         rna_genome = config["genomes"]["filter_rna"],
-        path = config["paths"]["bowtie"],
         fastqc_threads = config["threads"]["fastqc_report"]
     run:
         if {params.rna_genome} == "./genomes/filter_rna/":
@@ -81,7 +86,7 @@ rule filter_rna:
         else:
             shell(
             '''
-            {params.path} \
+            bowtie \
             -v 0 \
             -m 50 \
             --best \
@@ -100,7 +105,7 @@ rule filter_rna:
 
 # Filter out chloroplast and mitochondrial RNA
 for ext in "fastq fq fastq.gz fq.gz".split():
-    rule:
+    rule filter_chloroplast_mt_rna:
         input:
             name=expand("data/1_raw/{{sample}}.{ext}" \
                 if (str(config["trimming"]["min_length"]).strip() == "" and \
@@ -112,16 +117,17 @@ for ext in "fastq fq fastq.gz fq.gz".split():
                         else "data/3_ncrna_filtered/{{sample}}_ncrna_filtered.{ext}"), ext=ext)
         output:
             fqgz = "data/4_c_m_filtered/{sample}_c_m_filtered.fq.gz"
+        conda:
+            "workflow/envs/bowtie.yml"
         threads:
             config["threads"]["filter_c_m_bowtie"]
         params:
             fq = "data/4_c_m_filtered/{sample}_c_m_filtered.fq",
             c_m_genome = config["genomes"]["chloro_mitochondria"],
-            path = config["paths"]["bowtie"],
             fastqc_threads = config["threads"]["fastqc_report"]
         shell:
             '''
-            {params.path} \
+            bowtie \
             -v 0 \
             -m 50 \
             --best \
@@ -144,11 +150,12 @@ rule cluster:
         sample=SAMPLES)
     output:
         "data/5_clustered/merged.bam"
+    conda:
+        "workflow/envs/shortstack.yml"
     threads:
         config["threads"]["shortstack_cluster"]
     params:
         genome = config["genomes"]["reference_genome"],
-        path = config["paths"]["ShortStack"],
         multi_map_handler = config["aligning"]["multi_map_handler"],
         sort_memory = config["aligning"]["sort_memory"],
         nohp = config["aligning"]["no_mirna"],
@@ -162,7 +169,7 @@ rule cluster:
         fi
 
         rm -r data/5_clustered && \
-        {params.path} \
+        ShortStack \
         --sort_mem {params.sort_memory} \
         --mismatches {params.mismatches}\
         --mmap {params.multi_map_handler} \
@@ -185,13 +192,13 @@ rule split_by_sample:
         "data/5_clustered/merged.bam"
     output:
         expand("data/6_split_by_sample/{sample}_c_m_filtered.bam", sample=SAMPLES)
-    params:
-        path = config["paths"]["samtools"]
+    conda:
+        "workflow/envs/samtools.yml"
     shell:
         '''
         mkdir -p data/6_split_by_sample && \
 
-        {params.path} \
+        samtools \
         split \
         -f '%!.bam' \
         {input} 2>> output_logs/6_outlog.txt && \
@@ -205,13 +212,13 @@ rule convert_1:
         "data/6_split_by_sample/{sample}_c_m_filtered.bam"
     output:
         temp("data/temp_converted/int1/{sample}_int1.bam")
+    conda:
+        "workflow/envs/samtools.yml"
     threads:
         config["threads"]["mapped_reads_samtools"]
-    params:
-        path = config["paths"]["samtools"]
     shell:
         '''
-        {params.path} \
+        samtools \
         view \
         -F4 \
         -b \
@@ -225,11 +232,11 @@ rule convert_2:
         "data/temp_converted/int1/{sample}_int1.bam"
     output:
         temp("data/temp_converted/{sample}_converted.fq")
-    params:
-        path = config["paths"]["samtools"]
+    conda:
+        "workflow/envs/samtools.yml"
     shell:
         '''
-        {params.path} bam2fq -t {input} > {output} 2>> Error.txt
+        samtools bam2fq -t {input} > {output} 2>> Error.txt
         '''
 
 # Get encoding quality for Fastq files
@@ -247,6 +254,8 @@ rule log_lengths_end:
         "data/7_fastqs/{sample}.fastq.gz"
     output:
         "data/7_fastqs/{sample}_fastqc.zip"
+    conda:
+        "workflow/envs/fastqc.yml"
     threads:
         config["threads"]["fastqc_report"]
     shell:
