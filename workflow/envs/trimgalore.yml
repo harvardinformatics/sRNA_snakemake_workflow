@@ -4,4 +4,6 @@ channels:
     - defaults
 
 dependencies:
+    - cutadapt==2.3
     - trim-galore==0.6.2
+    - fastqc==0.11.7
