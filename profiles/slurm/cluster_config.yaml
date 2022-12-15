@@ -1,0 +1,159 @@
+__default__:
+    partition: "shared"
+    time: 720
+    nodes: 1
+    output: "logs/slurm-%j.out"
+    error: "logs/slurm-%j.err"
+
+
+#############
+# stringtie #
+############
+
+
+stringtie_hisat2:
+    partition: "serial_requeue,shared" 
+    output: "logs/stringtie-hisat2-%j.out"
+    error: "logs/stringtie-hisat2-%j.err"
+    job-name: "stiehisat"
+
+stringtie_hisat2_merge:
+    partition: "serial_requeue,shared"
+    output: "logs/stringtie-hisat2-merge-%j.out"
+    error: "logs/stringtie-hisat2-merge-%j.err"
+    job-name: "stie-merge"
+
+stringtie_star:
+    partition: "serial_requeue,shared"
+    output: "logs/stringtie-star-%j.out"
+    error: "logs/stringtie-star-%j.err"
+    job-name: "stiestar"
+
+stringtie_star_merge:
+    partition: "serial_requeue,shared"
+    output: "logs/stringtie-star-merge-%j.out"
+    error: "logs/stringtie-star-merge-%j.err"
+    job-name: "stie-merge"
+
+###########
+# hisat2 #
+###########
+
+hisat2_align:
+    partition: "serial_requeue,shared"
+    output: "logs/hisat2-%j.out"
+    error: "logs/hisat2-%j.err"
+    job-name: "hisat2"
+
+samsort_hisat2:
+    partition: "serial_requeue,shared"
+    output: "logs/samsort-hisat2-%j.out"
+    error: "logs/samsort-hisat2-%j.err"
+    job-name: "sorthisat"
+
+###########
+#  STAR   #
+###########
+star_1stpass:
+    partition: "serial_requeue,shared"
+    output: "logs/star1stpass-%j.out"
+    error: "logs/star1stpass-%j.err"
+    job-name: "star1st"
+
+star_2ndpass:
+    partition: "serial_requeue,shared"
+    output: "logs/star2ndpass-%j.out"
+    error: "logs/star2ndpass-%j.err"
+    job-name: "star2nd"
+
+samsort_star:
+    partition: "serial_requeue,shared"
+    output: "logs/samsort-star-%j.out"
+    error: "logs/samsort-star-%j.err"
+    job-name: "sortstar"
+
+
+###########
+# scallop #
+###########
+
+scallop_hisat2:
+    partition: "serial_requeue,shared"
+    output: "logs/scallop-hisat2-%j.out"
+    error: "logs/scallop-hisat2-%j.err"
+    job-name: "scallophisat" 
+
+taco_hisat2:
+    partition: "shared"
+    output: "logs/taco-hisat2-%j.out"
+    error: "logs/taco-hisat2-%j.err"
+    job-name: "tacohisat"
+
+scallop_star:
+    partition: "serial_requeue,shared"
+    output: "logs/scallop-star-%j.out"
+    error: "logs/scallop-star-%j.err"
+    job-name: "scallopstar"
+
+taco_star:
+    partition: "shared"
+    output: "logs/taco-star-%j.out"
+    error: "logs/taco-star-%j.err"
+    job-name: "tacostar"
+
+################
+# transdecoder #
+# #############
+
+TransdecoderLongOrfs:
+    parition: "serial_requeue,shared"
+    output: "logs/transdecoder-longorfs-%j.out"
+    error: "logs/transdecider-longorfs-%j.err"
+    job-name: "longorfs" 
+
+LongorfsBlastp:
+    parition: "serial_requeue,shared"
+    output: "logs/longorfs_blastp-%j.out"
+    error: "logs/longorfs_blastp-longorfs-%j.err"
+    job-name: "orfblastp"
+
+############
+# minimap2 #
+############
+
+minimap2_index:
+    partition: "serial_requeue,shared"
+    output: "logs/minimap2_index-%j.out"
+    error: "logs/minimap2_index-%j.err"
+    job-name: "mmindex"
+
+minimap2_align:
+    partition: "serial_requeue,shared"
+    output: "logs/minimap2_align-%j.out"
+    error: "logs/minimap2_align-%j.err"
+    job-name: "minialign"
+
+minimap2_sort:
+    partition: "serial_requeue,shared"
+    output: "logs/samsort_minimap-%j.out"
+    error: "logs/samsort_minimap-%j.err"
+    job-name: "minisort"
+
+
+
+
+#######################
+# stringtie longreads #
+# ####################
+stringtie_longreads:
+    partition: "shared"
+    output: "logs/stielong_align-%j.out"
+    error: "logs/stielong_align-%j.err"
+    job-name: "stielong"
+
+stringtie_longreads_merge:
+    partition: "shared"
+    output: "logs/stieLongmerge_align-%j.out"
+    error: "logs/stieLongmerge_align-%j.err"
+    job-name: "stielongmerge"
+   
