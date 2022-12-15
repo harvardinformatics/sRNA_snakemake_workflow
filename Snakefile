@@ -33,7 +33,10 @@ for ext in "fastq fq fastq.gz fq.gz".split():
         conda:
             "workflow/envs/fastqc.yml"
         threads:
-            config["threads"]["fastqc_report"]
+            res_config["fastqc"]["threads"]
+        resources:
+            mem_mb = res_config['fastqc']['mem_mb']
+            time = res_config['fastqc']['time']
         shell:
             '''
             fastqc -o data/1_raw/ -t {threads} {input}
@@ -48,12 +51,16 @@ for ext in "fastq fq fastq.gz fq.gz".split():
             "data/2_trimmed/{sample}_trimmed.fq.gz"
         conda:
             "workflow/envs/trimgalore.yml"
+        threads:
+            res_config["trimgalore"]["threads"]
+        resources:
+            mem_mb = res_config['trimgalore']['mem_mb']
+            time = res_config['trimgalore']['time']
         params:
             min_length = config["trimming"]["min_length"],
             max_length = config["trimming"]["max_length"],
             adapter_seq = config["trimming"]["adapter_seq"],
             quality = config["trimming"]["quality"],
-            fastqc_threads = config["threads"]["fastqc_report"]
         shell:
             '''
             trim_galore \
@@ -77,11 +84,13 @@ rule filter_rna:
     conda:
         "workflow/envs/bowtie.yml"
     threads:
-        config["threads"]["filter_rna_bowtie"]
+        res_config["filter_rna"]["threads"]
+    resources:
+        mem_mb = res_config['filter_rna']['mem_mb']
+        time = res_config['filter_rna']['time']
     params:
         fq = "data/3_ncrna_filtered/{sample}_ncrna_filtered.fq",
-        rna_genome = config["genomes"]["filter_rna"],
-        fastqc_threads = config["threads"]["fastqc_report"]
+        rna_genome = config["genomes"]["filter_rna"]
     run:
         if {params.rna_genome} == "./genomes/filter_rna/":
             shell("echo No contaminating RNA filter genome provided, \
@@ -103,7 +112,7 @@ rule filter_rna:
 
             gzip {params.fq} &&
             
-            fastqc -o data/3_ncrna_filtered/ -t {params.fastqc_threads} {output}
+            fastqc -o data/3_ncrna_filtered/ -t 1 {output}
             ''')
 
 # Filter out chloroplast and mitochondrial RNA
@@ -123,11 +132,14 @@ for ext in "fastq fq fastq.gz fq.gz".split():
         conda:
             "workflow/envs/bowtie.yml"
         threads:
-            config["threads"]["filter_c_m_bowtie"]
+            res_config['filter_chloroplast_mt_rna']['threads']
+        resources:
+            mem_mb = res_config['filter_chloroplast_mt_rna']['mem_mb']
+            time = res_config['filter_chloroplast_mt_rna']['time']
         params:
             fq = "data/4_c_m_filtered/{sample}_c_m_filtered.fq",
             c_m_genome = config["genomes"]["chloro_mitochondria"],
-            fastqc_threads = config["threads"]["fastqc_report"]
+            fastqc_threads = 1
         shell:
             '''
             bowtie \
@@ -156,11 +168,14 @@ rule cluster:
     conda:
         "workflow/envs/shortstack.yml"
     threads:
-        config["threads"]["shortstack_cluster"]
+        res_config['cluster']['threads']
+    resources:
+        mem_mb = res_config['cluster']['mem_mb']
+        time = res_config['cluster']['time']
     params:
         genome = config["genomes"]["reference_genome"],
         multi_map_handler = config["aligning"]["multi_map_handler"],
-        sort_memory = config["aligning"]["sort_memory"],
+        sort_memory = 0.8*res_config['cluster'['mem_mb'],
         nohp = config["aligning"]["no_mirna"],
         mismatches = config["aligning"]["mismatches"]
     shell:
@@ -197,6 +212,11 @@ rule split_by_sample:
         expand("data/6_split_by_sample/{sample}_c_m_filtered.bam", sample=SAMPLES)
     conda:
         "workflow/envs/samtools.yml"
+    threads:
+        res_config['split_by_sample']['threads']
+    resources:
+        mem_mb = res_config['split_by_sample']['mem_mb']
+        time = res_config['split_by_sample']['time']
     shell:
         '''
         mkdir -p data/6_split_by_sample && \
@@ -218,7 +238,10 @@ rule convert_1:
     conda:
         "workflow/envs/samtools.yml"
     threads:
-        config["threads"]["mapped_reads_samtools"]
+        res_config["convert_1"]["threads"]
+    resources:
+        mem_mb = res_config['convert_1']['mem_mb']
+        time = res_config['convert_1']['time']
     shell:
         '''
         samtools \
@@ -237,6 +260,11 @@ rule convert_2:
         temp("data/temp_converted/{sample}_converted.fq")
     conda:
         "workflow/envs/samtools.yml"
+    threads:
+        res_config['convert_2']['threads']
+    resources:
+        mem_mb = res_config['convert_2']['mem_mb']
+        time = res_config['convert_2']['time']
     shell:
         '''
         samtools bam2fq -t {input} > {output} 2>> Error.txt

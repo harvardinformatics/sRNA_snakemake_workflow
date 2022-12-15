@@ -1,0 +1,47 @@
+filter_rna:
+    nodes: 1 
+    threads: 10
+    mem_mb: 20000
+    time: 720 
+
+fastqc:
+    nodes: 1
+    threads: 1
+    mem_mb: 6000
+    time: 180 
+
+trimgalore:
+    nodes: 1
+    threads: 1
+    mem_mb: 6000
+    time: 360 
+
+filter_chloroplast_mt_rna:
+    nodes: 1
+    threads: 10
+    mem_mb: 30000
+    time: 720
+
+cluster:
+    nodes: 1
+    threads: 10
+    mem_mb: 30000
+    time: 1200
+
+split_by_sample:
+    nodes: 1
+    threads: 1
+    mem_mb: 8000
+    time: 720
+
+convert_1:
+    nodes: 1
+    threads: 10
+    mem_mb: 30000
+    time: 720
+
+convert_2:
+    nodes: 1
+    threads: 1
+    mem_mb: 6000
+    time: 240    

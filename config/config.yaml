@@ -19,14 +19,6 @@ threads:
     mapped_reads_samtools : 10
     fastqc_report : 1
 
-
-paths:
-    trim_galore : trim_galore
-    bowtie : bowtie
-    ShortStack : ShortStack
-    samtools : samtools
-
-
 samples:
     - # LIST OF SAMPLE NAMES
 
