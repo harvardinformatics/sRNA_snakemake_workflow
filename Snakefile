@@ -8,6 +8,7 @@
 
 
 # Get configuration
+res_config = yaml.load(open("config/resources.yaml"),Loader=yaml.FullLoader)
 configfile: "config/config.yaml"
 SAMPLES = config["samples"]
 #
