@@ -8,7 +8,7 @@
 
 
 # Get configuration
-configfile: "config.yaml"
+configfile: "config/config.yaml"
 SAMPLES = config["samples"]
 #
 
