@@ -5,3 +5,4 @@ channels:
 
 dependencies:
     - bowtie==1.2.2
+    - fastqc==0.11.7
