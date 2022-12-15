@@ -1,7 +1,10 @@
-# Author: Maya Bose
-# Date: 5/31/19
-# Run sRNA mapping workflow
-# See README.md for usage instructions
+# Author: Adam Freedman
+# Date: 12/15/22
+# modified version of workflow by:
+    # Author: Maya Bose
+    # Date: 5/31/19
+    # Run sRNA mapping workflow
+    # See README.md for usage instructions
 
 
 # Get configuration
