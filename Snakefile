@@ -49,11 +49,10 @@ for ext in "fastq fq fastq.gz fq.gz".split():
             max_length = config["trimming"]["max_length"],
             adapter_seq = config["trimming"]["adapter_seq"],
             quality = config["trimming"]["quality"],
-            path = config["paths"]["trim_galore"],
             fastqc_threads = config["threads"]["fastqc_report"]
         shell:
             '''
-            {params.path} \
+            trim_galore \
             --adapter {params.adapter_seq} \
             --gzip \
             --length {params.min_length} \
